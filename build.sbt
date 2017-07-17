@@ -109,7 +109,6 @@ pomExtra :=
     </developer>
   </developers>
 
-bintrayReleaseOnPublish in ThisBuild := false
 
 import ReleaseTransformations._
 
