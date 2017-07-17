@@ -73,6 +73,13 @@ EclipseKeys.eclipseOutput := Some("target/eclipse")
 
 publishMavenStyle := true
 
+publishTo := {
+  if (isSnapshot.value)
+    Some("nu-snapshots" at "s3://nu-maven/snapshots/")
+  else
+    Some("nu-maven" at "s3://nu-maven/releases/")
+}
+
 releaseCrossBuild := true
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
