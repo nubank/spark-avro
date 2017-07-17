@@ -35,6 +35,7 @@ import org.apache.hadoop.mapreduce.{RecordWriter, TaskAttemptContext, TaskAttemp
 
 import org.apache.spark.SPARK_VERSION
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.{CatalystTypeConverters, InternalRow}
 import org.apache.spark.sql.execution.datasources.OutputWriter
 import org.apache.spark.sql.types._
 
@@ -46,7 +47,9 @@ private[avro] class AvroOutputWriter(
     recordName: String,
     recordNamespace: String) extends OutputWriter  {
 
-  private lazy val converter = createConverterToAvro(schema, recordName, recordNamespace)
+  private lazy val converter =
+    CatalystTypeConverters.createToScalaConverter(schema) andThen
+      createConverterToAvro(schema, recordName, recordNamespace)
 
   /**
    * Overrides the couple of methods responsible for generating the output streams / files so
@@ -74,7 +77,7 @@ private[avro] class AvroOutputWriter(
 
     }.getRecordWriter(context)
 
-  override def write(row: Row): Unit = {
+  override def write(row: InternalRow): Unit = {
     val key = new AvroKey(converter(row).asInstanceOf[GenericRecord])
     recordWriter.write(key, NullWritable.get())
   }
